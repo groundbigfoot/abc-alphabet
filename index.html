@@ -6,18 +6,22 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="ABC 놀이" />
-  <link rel="manifest" href="data:application/json,%7B%22name%22%3A%22ABC%20%EC%95%8C%ED%8C%8C%EB%B2%B3%20%EB%86%80%EC%9D%B4%22%2C%22short_name%22%3A%22ABC%20%EB%86%80%EC%9D%B4%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23FFF5F5%22%2C%22theme_color%22%3A%22%234DABF7%22%7D" />
   <title>🌈 ABC 알파벳 놀이</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
-    html, body { overflow: hidden; height: 100%; position: fixed; width: 100%; overscroll-behavior: none; touch-action: none; }
-    #root { height: 100%; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; overscroll-behavior: none; }
-    @keyframes confettiFall { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
-    @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
-    @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-8px); } }
-    @keyframes shake { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-12px); } 40% { transform: translateX(12px); } 60% { transform: translateX(-8px); } 80% { transform: translateX(8px); } }
+    *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;-webkit-user-drag:none}
+    html,body{overflow:hidden;height:100%;position:fixed;width:100%;overscroll-behavior:none;-ms-touch-action:none}
+    #root{height:100%;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:none;touch-action:pan-y}
+    input,textarea{user-select:text!important;-webkit-user-select:text!important}
+    canvas{touch-action:none!important}
+    @keyframes confettiFall{0%{transform:translateY(0) rotate(0deg);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+    @keyframes popIn{0%{transform:scale(0.8);opacity:0}100%{transform:scale(1);opacity:1}}
+    @keyframes float{0%,100%{transform:translateY(0px)}50%{transform:translateY(-8px)}}
+    @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-12px)}40%{transform:translateX(12px)}60%{transform:translateX(-8px)}80%{transform:translateX(8px)}}
+    @keyframes bounceIn{0%{transform:scale(0) translateY(20px);opacity:0}60%{transform:scale(1.1) translateY(-5px)}100%{transform:scale(1) translateY(0);opacity:1}}
+    @keyframes slideRight{0%{transform:translateX(-20px);opacity:0}100%{transform:translateX(0);opacity:1}}
+    @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
   </style>
 </head>
 <body>
@@ -26,524 +30,286 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
   <script type="text/babel">
-    const { useState, useRef, useEffect, useCallback } = React;
+const{useState,useRef,useEffect,useCallback}=React;
 
-    const ALPHABET_DATA = [
-      { letter: "A", word: "Apple", emoji: "🍎" },
-      { letter: "B", word: "Bear", emoji: "🐻" },
-      { letter: "C", word: "Cat", emoji: "🐱" },
-      { letter: "D", word: "Dog", emoji: "🐶" },
-      { letter: "E", word: "Elephant", emoji: "🐘" },
-      { letter: "F", word: "Fish", emoji: "🐟" },
-      { letter: "G", word: "Grape", emoji: "🍇" },
-      { letter: "H", word: "House", emoji: "🏠" },
-      { letter: "I", word: "Ice cream", emoji: "🍦" },
-      { letter: "J", word: "Jellyfish", emoji: "🪼" },
-      { letter: "K", word: "Kite", emoji: "🪁" },
-      { letter: "L", word: "Lion", emoji: "🦁" },
-      { letter: "M", word: "Moon", emoji: "🌙" },
-      { letter: "N", word: "Nest", emoji: "🪺" },
-      { letter: "O", word: "Orange", emoji: "🍊" },
-      { letter: "P", word: "Penguin", emoji: "🐧" },
-      { letter: "Q", word: "Queen", emoji: "👑" },
-      { letter: "R", word: "Rainbow", emoji: "🌈" },
-      { letter: "S", word: "Star", emoji: "⭐" },
-      { letter: "T", word: "Tree", emoji: "🌳" },
-      { letter: "U", word: "Umbrella", emoji: "☂️" },
-      { letter: "V", word: "Violin", emoji: "🎻" },
-      { letter: "W", word: "Whale", emoji: "🐋" },
-      { letter: "X", word: "Xylophone", emoji: "🎵" },
-      { letter: "Y", word: "Yacht", emoji: "⛵" },
-      { letter: "Z", word: "Zebra", emoji: "🦓" },
-    ];
+const ALPHABET_DATA=[{letter:"A",word:"Apple",emoji:"🍎"},{letter:"B",word:"Bear",emoji:"🐻"},{letter:"C",word:"Cat",emoji:"🐱"},{letter:"D",word:"Dog",emoji:"🐶"},{letter:"E",word:"Elephant",emoji:"🐘"},{letter:"F",word:"Fish",emoji:"🐟"},{letter:"G",word:"Grape",emoji:"🍇"},{letter:"H",word:"House",emoji:"🏠"},{letter:"I",word:"Ice cream",emoji:"🍦"},{letter:"J",word:"Jellyfish",emoji:"🪼"},{letter:"K",word:"Kite",emoji:"🪁"},{letter:"L",word:"Lion",emoji:"🦁"},{letter:"M",word:"Moon",emoji:"🌙"},{letter:"N",word:"Nest",emoji:"🪺"},{letter:"O",word:"Orange",emoji:"🍊"},{letter:"P",word:"Penguin",emoji:"🐧"},{letter:"Q",word:"Queen",emoji:"👑"},{letter:"R",word:"Rainbow",emoji:"🌈"},{letter:"S",word:"Star",emoji:"⭐"},{letter:"T",word:"Tree",emoji:"🌳"},{letter:"U",word:"Umbrella",emoji:"☂️"},{letter:"V",word:"Violin",emoji:"🎻"},{letter:"W",word:"Whale",emoji:"🐋"},{letter:"X",word:"Xylophone",emoji:"🎵"},{letter:"Y",word:"Yacht",emoji:"⛵"},{letter:"Z",word:"Zebra",emoji:"🦓"}];
 
-    const PASTEL_COLORS = [
-      "#FF6B6B", "#FF8E72", "#FFA94D", "#FFD43B", "#A9E34B",
-      "#69DB7C", "#38D9A9", "#3BC9DB", "#4DABF7", "#748FFC",
-      "#9775FA", "#DA77F2", "#F06595", "#FF8787", "#FFA8A8",
-      "#FFD8A8", "#FFEC99", "#D8F5A2", "#96F2D7", "#99E9F2",
-      "#A5D8FF", "#BAC8FF", "#D0BFFF", "#EEBEFA", "#FCC2D7",
-      "#E599F7",
-    ];
+const WRITE_WORDS=[{word:"cat",emoji:"🐱"},{word:"dog",emoji:"🐶"},{word:"sun",emoji:"☀️"},{word:"hat",emoji:"🎩"},{word:"cup",emoji:"🥤"},{word:"bus",emoji:"🚌"},{word:"pig",emoji:"🐷"},{word:"bed",emoji:"🛏️"},{word:"fox",emoji:"🦊"},{word:"box",emoji:"📦"},{word:"fish",emoji:"🐟"},{word:"star",emoji:"⭐"},{word:"tree",emoji:"🌳"},{word:"moon",emoji:"🌙"},{word:"bear",emoji:"🐻"},{word:"love",emoji:"❤️"},{word:"cake",emoji:"🎂"},{word:"duck",emoji:"🦆"},{word:"frog",emoji:"🐸"},{word:"hand",emoji:"✋"}];
 
-    const speak = (text, rate = 0.8) => {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = "en-US";
-      utterance.rate = rate;
-      utterance.pitch = 1.1;
-      window.speechSynthesis.speak(utterance);
-    };
+const PASTEL_COLORS=["#FF6B6B","#FF8E72","#FFA94D","#FFD43B","#A9E34B","#69DB7C","#38D9A9","#3BC9DB","#4DABF7","#748FFC","#9775FA","#DA77F2","#F06595","#FF8787","#FFA8A8","#FFD8A8","#FFEC99","#D8F5A2","#96F2D7","#99E9F2","#A5D8FF","#BAC8FF","#D0BFFF","#EEBEFA","#FCC2D7","#E599F7"];
 
-    const playCorrectSound = () => {
-      try {
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        const playTone = (freq, startTime, duration) => {
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.type = "sine";
-          osc.frequency.value = freq;
-          gain.gain.setValueAtTime(0.3, startTime);
-          gain.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
-          osc.connect(gain);
-          gain.connect(ctx.destination);
-          osc.start(startTime);
-          osc.stop(startTime + duration);
-        };
-        playTone(830, ctx.currentTime, 0.15);
-        playTone(1100, ctx.currentTime + 0.15, 0.25);
-      } catch (e) {}
-    };
+// ===== CATEGORY DATA =====
+const CATEGORIES = [
+  { id:"colors", name:"색깔", icon:"🎨", color:"#FF6B6B",
+    items:[
+      {en:"Red",ko:"빨간색",emoji:"🔴"},{en:"Blue",ko:"파란색",emoji:"🔵"},{en:"Yellow",ko:"노란색",emoji:"🟡"},
+      {en:"Green",ko:"초록색",emoji:"🟢"},{en:"Orange",ko:"주황색",emoji:"🟠"},{en:"Purple",ko:"보라색",emoji:"🟣"},
+      {en:"Pink",ko:"분홍색",emoji:"💗"},{en:"White",ko:"하얀색",emoji:"⬜"},{en:"Black",ko:"검정색",emoji:"⬛"},
+      {en:"Brown",ko:"갈색",emoji:"🟤"},
+    ]},
+  { id:"animals", name:"동물", icon:"🐾", color:"#FFA94D",
+    items:[
+      {en:"Dog",ko:"강아지",emoji:"🐶"},{en:"Cat",ko:"고양이",emoji:"🐱"},{en:"Rabbit",ko:"토끼",emoji:"🐰"},
+      {en:"Bear",ko:"곰",emoji:"🐻"},{en:"Lion",ko:"사자",emoji:"🦁"},{en:"Elephant",ko:"코끼리",emoji:"🐘"},
+      {en:"Monkey",ko:"원숭이",emoji:"🐵"},{en:"Penguin",ko:"펭귄",emoji:"🐧"},{en:"Frog",ko:"개구리",emoji:"🐸"},
+      {en:"Fish",ko:"물고기",emoji:"🐟"},{en:"Bird",ko:"새",emoji:"🐦"},{en:"Duck",ko:"오리",emoji:"🦆"},
+      {en:"Horse",ko:"말",emoji:"🐴"},{en:"Pig",ko:"돼지",emoji:"🐷"},{en:"Turtle",ko:"거북이",emoji:"🐢"},
+    ]},
+  { id:"family", name:"가족", icon:"👨‍👩‍👧‍👦", color:"#4DABF7",
+    items:[
+      {en:"Dad",ko:"아빠",emoji:"👨"},{en:"Mom",ko:"엄마",emoji:"👩"},{en:"Grandpa",ko:"할아버지",emoji:"👴"},
+      {en:"Grandma",ko:"할머니",emoji:"👵"},{en:"Brother",ko:"오빠/형",emoji:"👦"},{en:"Sister",ko:"언니/누나",emoji:"👧"},
+      {en:"Baby",ko:"아기",emoji:"👶"},{en:"Uncle",ko:"삼촌",emoji:"🧑"},{en:"Aunt",ko:"이모/고모",emoji:"👩‍🦰"},
+    ]},
+  { id:"food", name:"음식", icon:"🍕", color:"#69DB7C",
+    items:[
+      {en:"Apple",ko:"사과",emoji:"🍎"},{en:"Banana",ko:"바나나",emoji:"🍌"},{en:"Bread",ko:"빵",emoji:"🍞"},
+      {en:"Milk",ko:"우유",emoji:"🥛"},{en:"Egg",ko:"달걀",emoji:"🥚"},{en:"Rice",ko:"밥",emoji:"🍚"},
+      {en:"Pizza",ko:"피자",emoji:"🍕"},{en:"Cake",ko:"케이크",emoji:"🎂"},{en:"Water",ko:"물",emoji:"💧"},
+      {en:"Candy",ko:"사탕",emoji:"🍬"},{en:"Cookie",ko:"쿠키",emoji:"🍪"},{en:"Ice cream",ko:"아이스크림",emoji:"🍦"},
+    ]},
+  { id:"body", name:"몸", icon:"🖐️", color:"#DA77F2",
+    items:[
+      {en:"Head",ko:"머리",emoji:"🗣️"},{en:"Eye",ko:"눈",emoji:"👁️"},{en:"Nose",ko:"코",emoji:"👃"},
+      {en:"Mouth",ko:"입",emoji:"👄"},{en:"Ear",ko:"귀",emoji:"👂"},{en:"Hand",ko:"손",emoji:"✋"},
+      {en:"Foot",ko:"발",emoji:"🦶"},{en:"Leg",ko:"다리",emoji:"🦵"},{en:"Arm",ko:"팔",emoji:"💪"},
+      {en:"Finger",ko:"손가락",emoji:"☝️"},
+    ]},
+  { id:"nature", name:"자연", icon:"🌈", color:"#38D9A9",
+    items:[
+      {en:"Sun",ko:"태양",emoji:"☀️"},{en:"Moon",ko:"달",emoji:"🌙"},{en:"Star",ko:"별",emoji:"⭐"},
+      {en:"Cloud",ko:"구름",emoji:"☁️"},{en:"Rain",ko:"비",emoji:"🌧️"},{en:"Snow",ko:"눈",emoji:"❄️"},
+      {en:"Tree",ko:"나무",emoji:"🌳"},{en:"Flower",ko:"꽃",emoji:"🌸"},{en:"Mountain",ko:"산",emoji:"⛰️"},
+      {en:"Sea",ko:"바다",emoji:"🌊"},{en:"Rainbow",ko:"무지개",emoji:"🌈"},{en:"Fire",ko:"불",emoji:"🔥"},
+    ]},
+  { id:"vehicles", name:"탈것", icon:"🚗", color:"#748FFC",
+    items:[
+      {en:"Car",ko:"자동차",emoji:"🚗"},{en:"Bus",ko:"버스",emoji:"🚌"},{en:"Train",ko:"기차",emoji:"🚂"},
+      {en:"Airplane",ko:"비행기",emoji:"✈️"},{en:"Ship",ko:"배",emoji:"🚢"},{en:"Bicycle",ko:"자전거",emoji:"🚲"},
+      {en:"Truck",ko:"트럭",emoji:"🚛"},{en:"Taxi",ko:"택시",emoji:"🚕"},{en:"Ambulance",ko:"구급차",emoji:"🚑"},
+      {en:"Fire truck",ko:"소방차",emoji:"🚒"},
+    ]},
+  { id:"numbers", name:"숫자", icon:"🔢", color:"#F06595",
+    items:[
+      {en:"One",ko:"하나",emoji:"1️⃣"},{en:"Two",ko:"둘",emoji:"2️⃣"},{en:"Three",ko:"셋",emoji:"3️⃣"},
+      {en:"Four",ko:"넷",emoji:"4️⃣"},{en:"Five",ko:"다섯",emoji:"5️⃣"},{en:"Six",ko:"여섯",emoji:"6️⃣"},
+      {en:"Seven",ko:"일곱",emoji:"7️⃣"},{en:"Eight",ko:"여덟",emoji:"8️⃣"},{en:"Nine",ko:"아홉",emoji:"9️⃣"},
+      {en:"Ten",ko:"열",emoji:"🔟"},
+    ]},
+];
 
-    const playWrongSound = () => {
-      try {
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = "square";
-        osc.frequency.value = 200;
-        gain.gain.setValueAtTime(0.15, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.25);
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start(ctx.currentTime);
-        osc.stop(ctx.currentTime + 0.25);
-      } catch (e) {}
-    };
+const speak=(text,rate=0.8)=>{window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang="en-US";u.rate=rate;u.pitch=1.1;window.speechSynthesis.speak(u)};
+const playOK=()=>{try{const c=new(window.AudioContext||window.webkitAudioContext)();const t=(f,s,d)=>{const o=c.createOscillator(),g=c.createGain();o.type="sine";o.frequency.value=f;g.gain.setValueAtTime(0.3,s);g.gain.exponentialRampToValueAtTime(0.01,s+d);o.connect(g);g.connect(c.destination);o.start(s);o.stop(s+d)};t(830,c.currentTime,0.15);t(1100,c.currentTime+0.15,0.25)}catch(e){}};
+const playNG=()=>{try{const c=new(window.AudioContext||window.webkitAudioContext)();const o=c.createOscillator(),g=c.createGain();o.type="square";o.frequency.value=200;g.gain.setValueAtTime(0.15,c.currentTime);g.gain.exponentialRampToValueAtTime(0.01,c.currentTime+0.25);o.connect(g);g.connect(c.destination);o.start(c.currentTime);o.stop(c.currentTime+0.25)}catch(e){}};
+const playChime=()=>{try{const c=new(window.AudioContext||window.webkitAudioContext)();const t=(f,s,d)=>{const o=c.createOscillator(),g=c.createGain();o.type="sine";o.frequency.value=f;g.gain.setValueAtTime(0.2,s);g.gain.exponentialRampToValueAtTime(0.01,s+d);o.connect(g);g.connect(c.destination);o.start(s);o.stop(s+d)};t(523,c.currentTime,0.15);t(659,c.currentTime+0.12,0.15);t(784,c.currentTime+0.24,0.2)}catch(e){}};
+const Confetti=({show})=>{if(!show)return null;const p=Array.from({length:40},(_,i)=>({id:i,left:Math.random()*100,delay:Math.random()*0.5,color:["#FF6B6B","#FFD43B","#69DB7C","#4DABF7","#DA77F2","#FF8E72"][i%6],size:6+Math.random()*8}));return(<div style={{position:"fixed",inset:0,pointerEvents:"none",zIndex:9999}}>{p.map(p=>(<div key={p.id} style={{position:"absolute",left:p.left+"%",top:"-10px",width:p.size,height:p.size,backgroundColor:p.color,borderRadius:Math.random()>0.5?"50%":"2px",animation:"confettiFall 1.8s "+p.delay+"s ease-in forwards"}}/>))}</div>)};
 
-    const Confetti = ({ show }) => {
-      if (!show) return null;
-      const pieces = Array.from({ length: 40 }, (_, i) => ({
-        id: i, left: Math.random() * 100, delay: Math.random() * 0.5,
-        color: ["#FF6B6B", "#FFD43B", "#69DB7C", "#4DABF7", "#DA77F2", "#FF8E72"][i % 6],
-        size: 6 + Math.random() * 8,
-      }));
-      return (
-        <div style={{ position: "fixed", inset: 0, pointerEvents: "none", zIndex: 9999 }}>
-          {pieces.map((p) => (
-            <div key={p.id} style={{
-              position: "absolute", left: p.left + "%", top: "-10px",
-              width: p.size, height: p.size, backgroundColor: p.color,
-              borderRadius: Math.random() > 0.5 ? "50%" : "2px",
-              animation: "confettiFall 1.8s " + p.delay + "s ease-in forwards",
-            }} />
-          ))}
-        </div>
-      );
-    };
+// ===== TABS =====
+const TabNav=({activeTab,setActiveTab})=>{const tabs=[{id:"cards",label:"카드",icon:"🃏"},{id:"write",label:"따라쓰기",icon:"✏️"},{id:"match",label:"매칭",icon:"🎯"},{id:"typing",label:"타이핑",icon:"⌨️"},{id:"vocab",label:"단어",icon:"📚"},{id:"wordwrite",label:"단어쓰기",icon:"✍️"}];
+return(<div className="tab-scroll" style={{display:"flex",gap:4,padding:"8px 8px",overflowX:"auto",WebkitOverflowScrolling:"touch",background:"rgba(255,255,255,0.7)",borderRadius:20,margin:"0 auto",backdropFilter:"blur(10px)",maxWidth:520,scrollbarWidth:"none"}}><style>{`.tab-scroll::-webkit-scrollbar{display:none}`}</style>{tabs.map(tab=>(<button key={tab.id} onClick={()=>setActiveTab(tab.id)} style={{flexShrink:0,padding:"8px 8px",border:"none",borderRadius:14,cursor:"pointer",fontSize:12,fontWeight:700,fontFamily:"'Nunito',sans-serif",transition:"all 0.3s cubic-bezier(0.34,1.56,0.64,1)",minWidth:58,background:activeTab===tab.id?"#4DABF7":"transparent",color:activeTab===tab.id?"#fff":"#555",transform:activeTab===tab.id?"scale(1.05)":"scale(1)",boxShadow:activeTab===tab.id?"0 4px 15px rgba(77,171,247,0.4)":"none"}}><span style={{fontSize:16}}>{tab.icon}</span><br/><span style={{fontSize:10}}>{tab.label}</span></button>))}</div>)};
 
-    const TabNav = ({ activeTab, setActiveTab }) => {
-      const tabs = [
-        { id: "cards", label: "카드", icon: "🃏" },
-        { id: "write", label: "따라쓰기", icon: "✏️" },
-        { id: "match", label: "매칭", icon: "🎯" },
-        { id: "typing", label: "타이핑", icon: "⌨️" },
-      ];
-      return (
-        <div style={{
-          display: "flex", gap: 6, justifyContent: "center", padding: "10px 12px",
-          background: "rgba(255,255,255,0.7)", borderRadius: 20, margin: "0 auto",
-          backdropFilter: "blur(10px)", maxWidth: 500,
-        }}>
-          {tabs.map((tab) => (
-            <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{
-              flex: 1, padding: "10px 4px", border: "none", borderRadius: 14, cursor: "pointer",
-              fontSize: 14, fontWeight: 700, fontFamily: "'Nunito', sans-serif",
-              transition: "all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)",
-              background: activeTab === tab.id ? "#4DABF7" : "transparent",
-              color: activeTab === tab.id ? "#fff" : "#555",
-              transform: activeTab === tab.id ? "scale(1.05)" : "scale(1)",
-              boxShadow: activeTab === tab.id ? "0 4px 15px rgba(77,171,247,0.4)" : "none",
-            }}>
-              <span style={{ fontSize: 18 }}>{tab.icon}</span><br />
-              <span style={{ fontSize: 11 }}>{tab.label}</span>
-            </button>
-          ))}
-        </div>
-      );
-    };
+// ===== ALPHABET CARDS =====
+const AlphabetCards=()=>{const[ci,setCi]=useState(0);const[showLower,setShowLower]=useState(false);const[flip,setFlip]=useState(false);const d=ALPHABET_DATA[ci];const color=PASTEL_COLORS[ci];const go=(dir)=>{setFlip(true);setTimeout(()=>{setCi(i=>(i+dir+26)%26);setShowLower(false);setFlip(false)},250)};
+return(<div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:20}}><div style={{display:"flex",flexWrap:"wrap",gap:5,justifyContent:"center",maxWidth:500,padding:"0 10px"}}>{ALPHABET_DATA.map((a,i)=>(<button key={a.letter} onClick={()=>{setCi(i);setShowLower(false)}} style={{width:32,height:32,border:"none",borderRadius:8,cursor:"pointer",fontSize:13,fontWeight:800,fontFamily:"'Nunito',sans-serif",background:i===ci?PASTEL_COLORS[i]:"rgba(255,255,255,0.6)",color:i===ci?"#fff":"#777",transition:"all 0.2s",transform:i===ci?"scale(1.15)":"scale(1)"}}>{a.letter}</button>))}</div>
+<div onClick={()=>speak(d.letter.toLowerCase())} style={{width:280,minHeight:360,borderRadius:28,padding:30,cursor:"pointer",background:"linear-gradient(145deg,"+color+"22,"+color+"44)",border:"3px solid "+color+"66",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:10,transition:"all 0.3s",position:"relative",transform:flip?"scale(0.9) rotateY(90deg)":"scale(1) rotateY(0deg)",boxShadow:"0 8px 30px "+color+"33"}}><div style={{fontSize:80,lineHeight:1}}>{d.emoji}</div><div style={{fontSize:90,fontWeight:900,fontFamily:"'Fredoka','Nunito',sans-serif",color:color,textShadow:"2px 2px 0px "+color+"44",lineHeight:1}}>{showLower?d.letter.toLowerCase():d.letter}</div><div style={{fontSize:24,fontWeight:700,color:"#555",fontFamily:"'Nunito',sans-serif"}}>{d.word}</div><div style={{display:"flex",gap:8,marginTop:5}}><button onClick={e=>{e.stopPropagation();setShowLower(false)}} style={{padding:"6px 16px",border:"none",borderRadius:10,cursor:"pointer",fontSize:16,fontWeight:800,fontFamily:"'Fredoka',sans-serif",background:!showLower?color:"rgba(0,0,0,0.06)",color:!showLower?"#fff":"#999"}}>{d.letter}</button><button onClick={e=>{e.stopPropagation();setShowLower(true)}} style={{padding:"6px 16px",border:"none",borderRadius:10,cursor:"pointer",fontSize:16,fontWeight:800,fontFamily:"'Fredoka',sans-serif",background:showLower?color:"rgba(0,0,0,0.06)",color:showLower?"#fff":"#999"}}>{d.letter.toLowerCase()}</button></div><div style={{position:"absolute",top:12,right:16,fontSize:22,opacity:0.5}}>🔊</div></div>
+<div style={{display:"flex",gap:16,alignItems:"center"}}><button onClick={()=>go(-1)} style={{width:48,height:48,border:"none",borderRadius:14,cursor:"pointer",fontSize:18,fontWeight:700,background:"rgba(255,255,255,0.8)",color:"#555",boxShadow:"0 2px 8px rgba(0,0,0,0.08)"}}>◀</button><span style={{fontSize:14,color:"#999",fontFamily:"'Nunito',sans-serif",fontWeight:700}}>{ci+1}/26</span><button onClick={()=>go(1)} style={{width:48,height:48,border:"none",borderRadius:14,cursor:"pointer",fontSize:18,fontWeight:700,background:"rgba(255,255,255,0.8)",color:"#555",boxShadow:"0 2px 8px rgba(0,0,0,0.08)"}}>▶</button></div></div>)};
 
-    const AlphabetCards = () => {
-      const [currentIndex, setCurrentIndex] = useState(0);
-      const [showLower, setShowLower] = useState(false);
-      const [flipAnim, setFlipAnim] = useState(false);
-      const data = ALPHABET_DATA[currentIndex];
-      const color = PASTEL_COLORS[currentIndex];
+// ===== WRITING PRACTICE (scroll fixed) =====
+const WritingPractice=()=>{const canvasRef=useRef(null);const[ci,setCi]=useState(0);const drawingRef=useRef(false);const[isLower,setIsLower]=useState(false);const d=ALPHABET_DATA[ci];const color=PASTEL_COLORS[ci];
+const clearCanvas=useCallback(()=>{const c=canvasRef.current;if(!c)return;const ctx=c.getContext("2d");ctx.clearRect(0,0,c.width,c.height);ctx.font="bold 180px Fredoka,Nunito,sans-serif";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillStyle=color+"40";ctx.fillText(isLower?d.letter.toLowerCase():d.letter,c.width/2,c.height/2);ctx.strokeStyle="#ddd";ctx.lineWidth=1;ctx.setLineDash([5,5]);ctx.beginPath();ctx.moveTo(20,c.height*0.65);ctx.lineTo(c.width-20,c.height*0.65);ctx.stroke();ctx.setLineDash([])},[ci,isLower,color,d.letter]);
+useEffect(()=>{clearCanvas()},[clearCanvas]);
+useEffect(()=>{
+  const c=canvasRef.current;if(!c)return;
+  const getPos=e=>{const r=c.getBoundingClientRect(),sx=c.width/r.width,sy=c.height/r.height;const t=e.touches?e.touches[0]:e;return{x:(t.clientX-r.left)*sx,y:(t.clientY-r.top)*sy}};
+  const onStart=e=>{e.preventDefault();e.stopPropagation();drawingRef.current=true;const ctx=c.getContext("2d"),p=getPos(e);ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.strokeStyle=color;ctx.lineWidth=6;ctx.lineCap="round";ctx.lineJoin="round"};
+  const onMove=e=>{if(!drawingRef.current)return;e.preventDefault();e.stopPropagation();const ctx=c.getContext("2d"),p=getPos(e);ctx.lineTo(p.x,p.y);ctx.stroke()};
+  const onEnd=e=>{e.preventDefault();drawingRef.current=false};
+  c.addEventListener("touchstart",onStart,{passive:false});c.addEventListener("touchmove",onMove,{passive:false});c.addEventListener("touchend",onEnd,{passive:false});
+  c.addEventListener("mousedown",onStart);c.addEventListener("mousemove",onMove);c.addEventListener("mouseup",onEnd);c.addEventListener("mouseleave",onEnd);
+  return()=>{c.removeEventListener("touchstart",onStart);c.removeEventListener("touchmove",onMove);c.removeEventListener("touchend",onEnd);c.removeEventListener("mousedown",onStart);c.removeEventListener("mousemove",onMove);c.removeEventListener("mouseup",onEnd);c.removeEventListener("mouseleave",onEnd)};
+},[color]);
+return(<div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:16}}><div style={{display:"flex",gap:6,flexWrap:"wrap",justifyContent:"center"}}>{ALPHABET_DATA.map((a,i)=>(<button key={a.letter} onClick={()=>setCi(i)} style={{width:30,height:30,border:"none",borderRadius:7,cursor:"pointer",fontSize:12,fontWeight:800,fontFamily:"'Nunito',sans-serif",background:i===ci?PASTEL_COLORS[i]:"rgba(255,255,255,0.5)",color:i===ci?"#fff":"#888"}}>{a.letter}</button>))}</div>
+<div style={{display:"flex",gap:10,alignItems:"center"}}><span style={{fontSize:40}}>{d.emoji}</span><span style={{fontSize:48,fontWeight:900,color:color,fontFamily:"'Fredoka',sans-serif"}}>{isLower?d.letter.toLowerCase():d.letter}</span><button onClick={()=>speak(d.letter.toLowerCase())} style={{background:"none",border:"none",fontSize:28,cursor:"pointer"}}>🔊</button></div>
+<div style={{display:"flex",gap:8}}><button onClick={()=>setIsLower(false)} style={{padding:"6px 18px",border:"none",borderRadius:10,cursor:"pointer",fontSize:16,fontWeight:800,fontFamily:"'Fredoka',sans-serif",background:!isLower?color:"#eee",color:!isLower?"#fff":"#aaa"}}>대문자</button><button onClick={()=>setIsLower(true)} style={{padding:"6px 18px",border:"none",borderRadius:10,cursor:"pointer",fontSize:16,fontWeight:800,fontFamily:"'Fredoka',sans-serif",background:isLower?color:"#eee",color:isLower?"#fff":"#aaa"}}>소문자</button></div>
+<div style={{position:"relative",borderRadius:20,overflow:"hidden",boxShadow:"0 4px 20px rgba(0,0,0,0.08)",background:"#fff",border:"3px solid "+color+"33"}}><canvas ref={canvasRef} width={300} height={300} style={{width:300,height:300,touchAction:"none",cursor:"crosshair",display:"block"}}/></div>
+<div style={{display:"flex",gap:10}}><button onClick={clearCanvas} style={{padding:"10px 24px",border:"none",borderRadius:12,cursor:"pointer",fontSize:14,fontWeight:700,fontFamily:"'Nunito',sans-serif",background:"#FF6B6B",color:"#fff"}}>🗑️ 지우기</button><button onClick={()=>{speak("Great job!");clearCanvas();setCi(i=>(i+1)%26)}} style={{padding:"10px 24px",border:"none",borderRadius:12,cursor:"pointer",fontSize:14,fontWeight:700,fontFamily:"'Nunito',sans-serif",background:"#69DB7C",color:"#fff"}}>✅ 다음</button></div></div>)};
 
-      const handlePrev = () => { setFlipAnim(true); setTimeout(() => { setCurrentIndex((i) => (i - 1 + 26) % 26); setShowLower(false); setFlipAnim(false); }, 250); };
-      const handleNext = () => { setFlipAnim(true); setTimeout(() => { setCurrentIndex((i) => (i + 1) % 26); setShowLower(false); setFlipAnim(false); }, 250); };
-      const handleSpeak = () => { speak(data.letter.toLowerCase()); };
+// ===== MATCHING GAME (Listen & Pick Emoji) =====
+const MATCH_POOL=[{en:"Dog",emoji:"🐶",ko:"강아지"},{en:"Cat",emoji:"🐱",ko:"고양이"},{en:"Bear",emoji:"🐻",ko:"곰"},{en:"Lion",emoji:"🦁",ko:"사자"},{en:"Fish",emoji:"🐟",ko:"물고기"},{en:"Frog",emoji:"🐸",ko:"개구리"},{en:"Pig",emoji:"🐷",ko:"돼지"},{en:"Duck",emoji:"🦆",ko:"오리"},{en:"Bird",emoji:"🐦",ko:"새"},{en:"Fox",emoji:"🦊",ko:"여우"},{en:"Star",emoji:"⭐",ko:"별"},{en:"Sun",emoji:"☀️",ko:"태양"},{en:"Moon",emoji:"🌙",ko:"달"},{en:"Tree",emoji:"🌳",ko:"나무"},{en:"Apple",emoji:"🍎",ko:"사과"},{en:"Cake",emoji:"🎂",ko:"케이크"},{en:"Bus",emoji:"🚌",ko:"버스"},{en:"Car",emoji:"🚗",ko:"자동차"},{en:"Hat",emoji:"🎩",ko:"모자"},{en:"Cup",emoji:"🥤",ko:"컵"},{en:"Milk",emoji:"🥛",ko:"우유"},{en:"Egg",emoji:"🥚",ko:"달걀"},{en:"Pizza",emoji:"🍕",ko:"피자"},{en:"Banana",emoji:"🍌",ko:"바나나"},{en:"Flower",emoji:"🌸",ko:"꽃"},{en:"Rain",emoji:"🌧️",ko:"비"},{en:"Snow",emoji:"❄️",ko:"눈"},{en:"House",emoji:"🏠",ko:"집"},{en:"Penguin",emoji:"🐧",ko:"펭귄"},{en:"Rabbit",emoji:"🐰",ko:"토끼"}];
+const MatchingGame=()=>{
+  const[answer,setAnswer]=useState(null);
+  const[choices,setChoices]=useState([]);
+  const[feedback,setFeedback]=useState(null);
+  const[score,setScore]=useState(0);
+  const[total,setTotal]=useState(0);
+  const[streak,setStreak]=useState(0);
+  const[showConfetti,setShowConfetti]=useState(false);
+  const[shakeIdx,setShakeIdx]=useState(-1);
+  const[numChoices,setNumChoices]=useState(4);
+  const[showAnswer,setShowAnswer]=useState(false);
 
-      return (
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 20 }}>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 5, justifyContent: "center", maxWidth: 500, padding: "0 10px" }}>
-            {ALPHABET_DATA.map((d, i) => (
-              <button key={d.letter} onClick={() => { setCurrentIndex(i); setShowLower(false); }} style={{
-                width: 32, height: 32, border: "none", borderRadius: 8, cursor: "pointer",
-                fontSize: 13, fontWeight: 800, fontFamily: "'Nunito', sans-serif",
-                background: i === currentIndex ? PASTEL_COLORS[i] : "rgba(255,255,255,0.6)",
-                color: i === currentIndex ? "#fff" : "#777", transition: "all 0.2s",
-                transform: i === currentIndex ? "scale(1.15)" : "scale(1)",
-              }}>{d.letter}</button>
-            ))}
-          </div>
-          <div onClick={handleSpeak} style={{
-            width: 280, minHeight: 360, borderRadius: 28, padding: 30, cursor: "pointer",
-            background: "linear-gradient(145deg, " + color + "22, " + color + "44)",
-            border: "3px solid " + color + "66",
-            display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-            gap: 10, transition: "all 0.3s", position: "relative",
-            transform: flipAnim ? "scale(0.9) rotateY(90deg)" : "scale(1) rotateY(0deg)",
-            boxShadow: "0 8px 30px " + color + "33",
-          }}>
-            <div style={{ fontSize: 80, lineHeight: 1 }}>{data.emoji}</div>
-            <div style={{ fontSize: 90, fontWeight: 900, fontFamily: "'Fredoka', 'Nunito', sans-serif", color: color, textShadow: "2px 2px 0px " + color + "44", lineHeight: 1 }}>
-              {showLower ? data.letter.toLowerCase() : data.letter}
-            </div>
-            <div style={{ fontSize: 24, fontWeight: 700, color: "#555", fontFamily: "'Nunito', sans-serif" }}>{data.word}</div>
-            <div style={{ display: "flex", gap: 8, marginTop: 5 }}>
-              <button onClick={(e) => { e.stopPropagation(); setShowLower(false); }} style={{
-                padding: "6px 16px", border: "none", borderRadius: 10, cursor: "pointer",
-                fontSize: 16, fontWeight: 800, fontFamily: "'Fredoka', sans-serif",
-                background: !showLower ? color : "rgba(0,0,0,0.06)", color: !showLower ? "#fff" : "#999", transition: "all 0.2s",
-              }}>{data.letter}</button>
-              <button onClick={(e) => { e.stopPropagation(); setShowLower(true); }} style={{
-                padding: "6px 16px", border: "none", borderRadius: 10, cursor: "pointer",
-                fontSize: 16, fontWeight: 800, fontFamily: "'Fredoka', sans-serif",
-                background: showLower ? color : "rgba(0,0,0,0.06)", color: showLower ? "#fff" : "#999", transition: "all 0.2s",
-              }}>{data.letter.toLowerCase()}</button>
-            </div>
-            <div style={{ position: "absolute", top: 12, right: 16, fontSize: 22, opacity: 0.5 }}>🔊</div>
-          </div>
-          <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
-            <button onClick={handlePrev} style={{ width: 48, height: 48, border: "none", borderRadius: 14, cursor: "pointer", fontSize: 18, fontWeight: 700, background: "rgba(255,255,255,0.8)", color: "#555", boxShadow: "0 2px 8px rgba(0,0,0,0.08)" }}>◀</button>
-            <span style={{ fontSize: 14, color: "#999", fontFamily: "'Nunito', sans-serif", fontWeight: 700 }}>{currentIndex + 1} / 26</span>
-            <button onClick={handleNext} style={{ width: 48, height: 48, border: "none", borderRadius: 14, cursor: "pointer", fontSize: 18, fontWeight: 700, background: "rgba(255,255,255,0.8)", color: "#555", boxShadow: "0 2px 8px rgba(0,0,0,0.08)" }}>▶</button>
-          </div>
-        </div>
-      );
-    };
+  const generate=useCallback(()=>{
+    const aIdx=Math.floor(Math.random()*MATCH_POOL.length);
+    const ans=MATCH_POOL[aIdx];
+    setAnswer(ans);
+    const wrong=MATCH_POOL.filter((_,i)=>i!==aIdx).sort(()=>Math.random()-0.5).slice(0,numChoices-1);
+    setChoices([ans,...wrong].sort(()=>Math.random()-0.5));
+    setFeedback(null);setShakeIdx(-1);setShowAnswer(false);
+    setTimeout(()=>speak(ans.en,0.7),400);
+  },[numChoices]);
 
-    const WritingPractice = () => {
-      const canvasRef = useRef(null);
-      const [currentIndex, setCurrentIndex] = useState(0);
-      const [isDrawing, setIsDrawing] = useState(false);
-      const [isLower, setIsLower] = useState(false);
-      const data = ALPHABET_DATA[currentIndex];
-      const color = PASTEL_COLORS[currentIndex];
+  useEffect(()=>{generate()},[]);
+  useEffect(()=>{generate();setScore(0);setTotal(0);setStreak(0)},[numChoices]);
 
-      const clearCanvas = useCallback(() => {
-        const canvas = canvasRef.current;
-        if (!canvas) return;
-        const ctx = canvas.getContext("2d");
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.font = "bold 180px Fredoka, Nunito, sans-serif";
-        ctx.textAlign = "center"; ctx.textBaseline = "middle";
-        ctx.fillStyle = color + "40";
-        ctx.fillText(isLower ? data.letter.toLowerCase() : data.letter, canvas.width / 2, canvas.height / 2);
-        ctx.strokeStyle = "#ddd"; ctx.lineWidth = 1; ctx.setLineDash([5, 5]);
-        ctx.beginPath(); ctx.moveTo(20, canvas.height * 0.65); ctx.lineTo(canvas.width - 20, canvas.height * 0.65); ctx.stroke(); ctx.setLineDash([]);
-      }, [currentIndex, isLower, color, data.letter]);
-
-      useEffect(() => { clearCanvas(); }, [clearCanvas]);
-
-      const getPos = (e) => {
-        const canvas = canvasRef.current; const rect = canvas.getBoundingClientRect();
-        const scaleX = canvas.width / rect.width; const scaleY = canvas.height / rect.height;
-        if (e.touches) return { x: (e.touches[0].clientX - rect.left) * scaleX, y: (e.touches[0].clientY - rect.top) * scaleY };
-        return { x: (e.clientX - rect.left) * scaleX, y: (e.clientY - rect.top) * scaleY };
-      };
-      const startDraw = (e) => { e.preventDefault(); setIsDrawing(true); const ctx = canvasRef.current.getContext("2d"); const pos = getPos(e); ctx.beginPath(); ctx.moveTo(pos.x, pos.y); ctx.strokeStyle = color; ctx.lineWidth = 6; ctx.lineCap = "round"; ctx.lineJoin = "round"; };
-      const draw = (e) => { e.preventDefault(); if (!isDrawing) return; const ctx = canvasRef.current.getContext("2d"); const pos = getPos(e); ctx.lineTo(pos.x, pos.y); ctx.stroke(); };
-      const stopDraw = () => setIsDrawing(false);
-
-      return (
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
-          <div style={{ display: "flex", gap: 6, flexWrap: "wrap", justifyContent: "center" }}>
-            {ALPHABET_DATA.map((d, i) => (
-              <button key={d.letter} onClick={() => setCurrentIndex(i)} style={{
-                width: 30, height: 30, border: "none", borderRadius: 7, cursor: "pointer",
-                fontSize: 12, fontWeight: 800, fontFamily: "'Nunito', sans-serif",
-                background: i === currentIndex ? PASTEL_COLORS[i] : "rgba(255,255,255,0.5)",
-                color: i === currentIndex ? "#fff" : "#888", transition: "all 0.2s",
-              }}>{d.letter}</button>
-            ))}
-          </div>
-          <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-            <span style={{ fontSize: 40 }}>{data.emoji}</span>
-            <span style={{ fontSize: 48, fontWeight: 900, color: color, fontFamily: "'Fredoka', sans-serif" }}>{isLower ? data.letter.toLowerCase() : data.letter}</span>
-            <button onClick={() => speak(data.letter.toLowerCase())} style={{ background: "none", border: "none", fontSize: 28, cursor: "pointer" }}>🔊</button>
-          </div>
-          <div style={{ display: "flex", gap: 8 }}>
-            <button onClick={() => setIsLower(false)} style={{ padding: "6px 18px", border: "none", borderRadius: 10, cursor: "pointer", fontSize: 16, fontWeight: 800, fontFamily: "'Fredoka', sans-serif", background: !isLower ? color : "#eee", color: !isLower ? "#fff" : "#aaa" }}>대문자</button>
-            <button onClick={() => setIsLower(true)} style={{ padding: "6px 18px", border: "none", borderRadius: 10, cursor: "pointer", fontSize: 16, fontWeight: 800, fontFamily: "'Fredoka', sans-serif", background: isLower ? color : "#eee", color: isLower ? "#fff" : "#aaa" }}>소문자</button>
-          </div>
-          <div style={{ position: "relative", borderRadius: 20, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,0.08)", background: "#fff", border: "3px solid " + color + "33" }}>
-            <canvas ref={canvasRef} width={300} height={300} style={{ width: 300, height: 300, touchAction: "none", cursor: "crosshair" }}
-              onMouseDown={startDraw} onMouseMove={draw} onMouseUp={stopDraw} onMouseLeave={stopDraw}
-              onTouchStart={startDraw} onTouchMove={draw} onTouchEnd={stopDraw} />
-          </div>
-          <div style={{ display: "flex", gap: 10 }}>
-            <button onClick={clearCanvas} style={{ padding: "10px 24px", border: "none", borderRadius: 12, cursor: "pointer", fontSize: 14, fontWeight: 700, fontFamily: "'Nunito', sans-serif", background: "#FF6B6B", color: "#fff" }}>🗑️ 지우기</button>
-            <button onClick={() => { speak("Great job!"); clearCanvas(); setCurrentIndex((i) => (i + 1) % 26); }} style={{ padding: "10px 24px", border: "none", borderRadius: 12, cursor: "pointer", fontSize: 14, fontWeight: 700, fontFamily: "'Nunito', sans-serif", background: "#69DB7C", color: "#fff" }}>✅ 다음 글자</button>
-          </div>
-        </div>
-      );
-    };
-
-    const MatchingGame = () => {
-      const [round, setRound] = useState(0);
-      const [score, setScore] = useState(0);
-      const [total, setTotal] = useState(0);
-      const [showConfetti, setShowConfetti] = useState(false);
-      const [gameLetters, setGameLetters] = useState([]);
-      const [shuffledLowers, setShuffledLowers] = useState([]);
-      const [matched, setMatched] = useState([]);
-      const [lines, setLines] = useState([]);
-      const [dragging, setDragging] = useState(null);
-      const [dragLine, setDragLine] = useState(null);
-      const [feedback, setFeedback] = useState(null);
-      const containerRef = useRef(null);
-      const upperRefs = useRef({});
-      const lowerRefs = useRef({});
-
-      const generateRound = useCallback(() => {
-        const shuffled = [...ALPHABET_DATA].sort(() => Math.random() - 0.5);
-        const picks = shuffled.slice(0, 4);
-        setGameLetters(picks);
-        setShuffledLowers(picks.map((p) => p.letter.toLowerCase()).sort(() => Math.random() - 0.5));
-        setMatched([]); setLines([]); setDragging(null); setDragLine(null); setFeedback(null);
-      }, []);
-
-      useEffect(() => { generateRound(); }, [round, generateRound]);
-
-      const getCenter = (el) => {
-        if (!el || !containerRef.current) return { x: 0, y: 0 };
-        const cr = containerRef.current.getBoundingClientRect(); const r = el.getBoundingClientRect();
-        return { x: r.left + r.width / 2 - cr.left, y: r.top + r.height / 2 - cr.top };
-      };
-
-      const handleUpperStart = (letter, e) => {
-        if (matched.includes(letter)) return;
-        e.preventDefault(); setDragging(letter);
-        const center = getCenter(upperRefs.current[letter]);
-        setDragLine({ from: center, to: center }); speak(letter.toLowerCase());
-      };
-
-      const handleMove = (e) => {
-        if (!dragging || !dragLine) return; e.preventDefault();
-        const cr = containerRef.current.getBoundingClientRect();
-        const cx = e.touches ? e.touches[0].clientX : e.clientX;
-        const cy = e.touches ? e.touches[0].clientY : e.clientY;
-        setDragLine((prev) => ({ ...prev, to: { x: cx - cr.left, y: cy - cr.top } }));
-      };
-
-      const handleEnd = (e) => {
-        if (!dragging) return; e.preventDefault();
-        const cx = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
-        const cy = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
-        let foundLower = null;
-        for (const lower of shuffledLowers) {
-          const el = lowerRefs.current[lower]; if (!el) continue;
-          const r = el.getBoundingClientRect();
-          if (cx >= r.left && cx <= r.right && cy >= r.top && cy <= r.bottom) { foundLower = lower; break; }
-        }
-        setTotal((t) => t + 1);
-        if (foundLower && foundLower === dragging.toLowerCase() && !matched.includes(dragging)) {
-          const fromCenter = getCenter(upperRefs.current[dragging]);
-          const toCenter = getCenter(lowerRefs.current[foundLower]);
-          const newMatched = [...matched, dragging];
-          setMatched(newMatched);
-          setLines((prev) => [...prev, { from: fromCenter, to: toCenter }]);
-          setScore((s) => s + 1); setFeedback({ type: "correct" }); speak("Correct!");
-          if (newMatched.length === gameLetters.length) {
-            setShowConfetti(true); speak("Wonderful!");
-            setTimeout(() => { setShowConfetti(false); setRound((r) => r + 1); }, 2000);
-          }
-        } else if (foundLower) { setFeedback({ type: "wrong" }); speak("Oops!"); }
-        setDragging(null); setDragLine(null);
-        setTimeout(() => setFeedback(null), 1200);
-      };
-
-      return (
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 20 }}>
-          <Confetti show={showConfetti} />
-          <div style={{ display: "flex", gap: 12, alignItems: "center", background: "rgba(255,255,255,0.6)", padding: "8px 20px", borderRadius: 14 }}>
-            <span style={{ fontSize: 24 }}>⭐</span>
-            <span style={{ fontSize: 20, fontWeight: 800, color: "#FFD43B", fontFamily: "'Fredoka', sans-serif" }}>{score} / {total}</span>
-          </div>
-          <div style={{ fontSize: 16, fontWeight: 700, color: "#666", fontFamily: "'Nunito', sans-serif", textAlign: "center" }}>대문자에서 소문자로<br />드래그하여 연결하세요!</div>
-          <div ref={containerRef} onMouseMove={handleMove} onMouseUp={handleEnd} onMouseLeave={handleEnd} onTouchMove={handleMove} onTouchEnd={handleEnd}
-            style={{ position: "relative", width: "100%", maxWidth: 400, padding: "0 10px", touchAction: "none" }}>
-            <svg style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 1 }}>
-              {lines.map((line, i) => (<line key={i} x1={line.from.x} y1={line.from.y} x2={line.to.x} y2={line.to.y} stroke="#69DB7C" strokeWidth={3} strokeLinecap="round" strokeDasharray="8 4" />))}
-              {dragLine && (<line x1={dragLine.from.x} y1={dragLine.from.y} x2={dragLine.to.x} y2={dragLine.to.y} stroke="#4DABF7" strokeWidth={3} strokeLinecap="round" strokeDasharray="6 4" opacity={0.7} />)}
-            </svg>
-            <div style={{ display: "flex", gap: 12, justifyContent: "center", marginBottom: 60, position: "relative", zIndex: 2 }}>
-              {gameLetters.map((item) => {
-                const isMatched = matched.includes(item.letter);
-                return (
-                  <div key={item.letter} ref={(el) => (upperRefs.current[item.letter] = el)}
-                    onMouseDown={(e) => handleUpperStart(item.letter, e)} onTouchStart={(e) => handleUpperStart(item.letter, e)}
-                    style={{
-                      width: 72, height: 72, borderRadius: 16, cursor: isMatched ? "default" : "grab",
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                      background: isMatched ? "#69DB7C22" : "rgba(255,255,255,0.85)",
-                      border: isMatched ? "3px solid #69DB7C55" : dragging === item.letter ? "3px solid #4DABF7" : "3px solid transparent",
-                      transform: dragging === item.letter ? "scale(1.1)" : isMatched ? "scale(0.95)" : "scale(1)",
-                      transition: "all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)",
-                      opacity: isMatched ? 0.6 : 1, boxShadow: dragging === item.letter ? "0 4px 15px rgba(77,171,247,0.3)" : "0 2px 8px rgba(0,0,0,0.06)", userSelect: "none",
-                    }}>
-                    <span style={{ fontSize: 32, fontWeight: 900, color: "#444", fontFamily: "'Fredoka', sans-serif" }}>{item.letter}</span>
-                  </div>
-                );
-              })}
-            </div>
-            <div style={{ display: "flex", gap: 12, justifyContent: "center", position: "relative", zIndex: 2 }}>
-              {shuffledLowers.map((lower, idx) => {
-                const isMatched = matched.includes(lower.toUpperCase());
-                return (
-                  <div key={lower + "-" + idx} ref={(el) => (lowerRefs.current[lower] = el)} style={{
-                    width: 72, height: 72, borderRadius: 16, display: "flex", alignItems: "center", justifyContent: "center",
-                    background: isMatched ? "#69DB7C22" : "rgba(255,255,255,0.85)",
-                    border: isMatched ? "3px solid #69DB7C55" : "3px solid transparent",
-                    opacity: isMatched ? 0.6 : 1, transform: isMatched ? "scale(0.95)" : "scale(1)",
-                    transition: "all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)",
-                    boxShadow: "0 2px 8px rgba(0,0,0,0.06)", userSelect: "none",
-                  }}>
-                    <span style={{ fontSize: 32, fontWeight: 900, color: "#444", fontFamily: "'Fredoka', sans-serif" }}>{lower}</span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-          {feedback && (
-            <div style={{ padding: "10px 24px", borderRadius: 14, background: feedback.type === "correct" ? "#69DB7C22" : "#FF6B6B22", color: feedback.type === "correct" ? "#2B8A3E" : "#C92A2A", fontSize: 16, fontWeight: 700, fontFamily: "'Nunito', sans-serif", animation: "popIn 0.3s ease-out" }}>
-              {feedback.type === "correct" ? "🎉 잘했어요!" : "😊 다시 해봐요!"}
-            </div>
-          )}
-          <button onClick={() => setRound((r) => r + 1)} style={{ padding: "10px 24px", border: "none", borderRadius: 12, cursor: "pointer", fontSize: 14, fontWeight: 700, fontFamily: "'Nunito', sans-serif", background: "#4DABF7", color: "#fff" }}>🔄 새 문제</button>
-        </div>
-      );
-    };
-
-    const TypingQuiz = () => {
-      const [currentIndex, setCurrentIndex] = useState(() => Math.floor(Math.random() * 26));
-      const [score, setScore] = useState(0);
-      const [total, setTotal] = useState(0);
-      const [feedback, setFeedback] = useState(null);
-      const [showConfetti, setShowConfetti] = useState(false);
-      const [streak, setStreak] = useState(0);
-      const [shakeAnim, setShakeAnim] = useState(false);
-      const [popAnim, setPopAnim] = useState(false);
-      const data = ALPHABET_DATA[currentIndex];
-      const color = PASTEL_COLORS[currentIndex];
-      const inputRef = useRef(null);
-
-      const nextLetter = useCallback(() => {
-        let next; do { next = Math.floor(Math.random() * 26); } while (next === currentIndex);
-        setCurrentIndex(next); setFeedback(null); setPopAnim(true);
-        setTimeout(() => setPopAnim(false), 300);
-      }, [currentIndex]);
-
-      useEffect(() => {
-        const handleKey = (e) => {
-          if (feedback) return;
-          const pressed = e.key.toUpperCase();
-          if (!/^[A-Z]$/.test(pressed)) return;
-          setTotal((t) => t + 1);
-          if (pressed === data.letter) {
-            setScore((s) => s + 1); const newStreak = streak + 1; setStreak(newStreak);
-            setFeedback("correct"); playCorrectSound(); speak(data.letter.toLowerCase());
-            if (newStreak > 0 && newStreak % 5 === 0) { setShowConfetti(true); setTimeout(() => setShowConfetti(false), 2000); }
-            setTimeout(() => nextLetter(), 800);
-          } else {
-            setStreak(0); setFeedback("wrong"); playWrongSound();
-            setShakeAnim(true); setTimeout(() => setShakeAnim(false), 500);
-            setTimeout(() => setFeedback(null), 1000);
-          }
-        };
-        window.addEventListener("keydown", handleKey);
-        return () => window.removeEventListener("keydown", handleKey);
-      }, [data.letter, feedback, streak, nextLetter]);
-
-      const handleMobileInput = (e) => {
-        const val = e.target.value; if (!val) return;
-        const pressed = val.toUpperCase(); e.target.value = "";
-        if (!/^[A-Z]$/.test(pressed) || feedback) return;
-        setTotal((t) => t + 1);
-        if (pressed === data.letter) {
-          setScore((s) => s + 1); const newStreak = streak + 1; setStreak(newStreak);
-          setFeedback("correct"); playCorrectSound(); speak(data.letter.toLowerCase());
-          if (newStreak > 0 && newStreak % 5 === 0) { setShowConfetti(true); setTimeout(() => setShowConfetti(false), 2000); }
-          setTimeout(() => nextLetter(), 800);
-        } else {
-          setStreak(0); setFeedback("wrong"); playWrongSound();
-          setShakeAnim(true); setTimeout(() => setShakeAnim(false), 500);
-          setTimeout(() => setFeedback(null), 1000);
-        }
-      };
-
-      return (
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 20 }}>
-          <Confetti show={showConfetti} />
-          <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
-            <div style={{ display: "flex", gap: 8, alignItems: "center", background: "rgba(255,255,255,0.6)", padding: "8px 16px", borderRadius: 14 }}>
-              <span style={{ fontSize: 22 }}>⭐</span>
-              <span style={{ fontSize: 18, fontWeight: 800, color: "#FFD43B", fontFamily: "'Fredoka', sans-serif" }}>{score} / {total}</span>
-            </div>
-            {streak >= 2 && (
-              <div style={{ display: "flex", gap: 4, alignItems: "center", background: "#FF6B6B22", padding: "8px 14px", borderRadius: 14, animation: "popIn 0.3s ease-out" }}>
-                <span style={{ fontSize: 18 }}>🔥</span>
-                <span style={{ fontSize: 16, fontWeight: 800, color: "#FF6B6B", fontFamily: "'Fredoka', sans-serif" }}>{streak}연속!</span>
-              </div>
-            )}
-          </div>
-          <div style={{ fontSize: 16, fontWeight: 700, color: "#666", fontFamily: "'Nunito', sans-serif", textAlign: "center" }}>이 글자를 키보드로 눌러보세요!</div>
-          <div style={{
-            width: 200, height: 200, borderRadius: 30,
-            display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-            background: feedback === "correct" ? "#69DB7C22" : feedback === "wrong" ? "#FF6B6B22" : "linear-gradient(145deg, " + color + "15, " + color + "30)",
-            border: feedback === "correct" ? "4px solid #69DB7C" : feedback === "wrong" ? "4px solid #FF6B6B" : "4px solid " + color + "44",
-            transition: "all 0.3s",
-            animation: shakeAnim ? "shake 0.4s ease-in-out" : popAnim ? "popIn 0.3s ease-out" : "none",
-            boxShadow: "0 8px 30px " + color + "22",
-          }}>
-            <span style={{ fontSize: 40, marginBottom: 4 }}>{data.emoji}</span>
-            <span style={{ fontSize: 80, fontWeight: 900, lineHeight: 1, fontFamily: "'Fredoka', sans-serif", color: feedback === "correct" ? "#69DB7C" : feedback === "wrong" ? "#FF6B6B" : color, transition: "color 0.2s" }}>{data.letter}</span>
-          </div>
-          <div style={{ height: 40, display: "flex", alignItems: "center" }}>
-            {feedback === "correct" && <div style={{ fontSize: 20, fontWeight: 800, color: "#2B8A3E", fontFamily: "'Fredoka', sans-serif", animation: "popIn 0.3s ease-out" }}>🎉 정답!</div>}
-            {feedback === "wrong" && <div style={{ fontSize: 20, fontWeight: 800, color: "#C92A2A", fontFamily: "'Fredoka', sans-serif", animation: "popIn 0.3s ease-out" }}>😊 다시!</div>}
-            {!feedback && <div style={{ fontSize: 28, animation: "float 2s ease-in-out infinite" }}>⌨️</div>}
-          </div>
-          <input ref={inputRef} type="text" autoComplete="off" autoCapitalize="characters" onInput={handleMobileInput} style={{ position: "absolute", opacity: 0, width: 1, height: 1, pointerEvents: "none" }} />
-          <button onClick={() => { inputRef.current && inputRef.current.focus(); }} style={{ padding: "12px 28px", border: "none", borderRadius: 14, cursor: "pointer", fontSize: 15, fontWeight: 700, fontFamily: "'Nunito', sans-serif", background: "#4DABF7", color: "#fff", boxShadow: "0 4px 12px rgba(77,171,247,0.3)" }}>📱 모바일 키보드 열기</button>
-          <button onClick={() => { setScore(0); setTotal(0); setStreak(0); setFeedback(null); nextLetter(); }} style={{ padding: "8px 20px", border: "none", borderRadius: 10, cursor: "pointer", fontSize: 13, fontWeight: 700, fontFamily: "'Nunito', sans-serif", background: "rgba(0,0,0,0.06)", color: "#888" }}>🔄 점수 초기화</button>
-        </div>
-      );
-    };
-
-    function App() {
-      const [activeTab, setActiveTab] = useState("cards");
-      return (
-        <div style={{ minHeight: "100vh", background: "linear-gradient(135deg, #FFF5F5 0%, #FFF9DB 25%, #EBFBEE 50%, #E7F5FF 75%, #F3F0FF 100%)", padding: "20px 16px 40px", fontFamily: "'Nunito', sans-serif" }}>
-          <div style={{ textAlign: "center", marginBottom: 20 }}>
-            <h1 style={{ fontSize: 28, fontWeight: 900, fontFamily: "'Fredoka', sans-serif", background: "linear-gradient(135deg, #FF6B6B, #FFD43B, #69DB7C, #4DABF7, #9775FA)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", margin: 0, lineHeight: 1.3 }}>🌈 ABC 알파벳 놀이</h1>
-            <p style={{ fontSize: 13, color: "#999", margin: "4px 0 0", fontWeight: 600 }}>재미있게 영어를 배워요!</p>
-          </div>
-          <TabNav activeTab={activeTab} setActiveTab={setActiveTab} />
-          <div style={{ marginTop: 24 }}>
-            {activeTab === "cards" && <AlphabetCards />}
-            {activeTab === "write" && <WritingPractice />}
-            {activeTab === "match" && <MatchingGame />}
-            {activeTab === "typing" && <TypingQuiz />}
-          </div>
-        </div>
-      );
+  const handlePick=(item,idx)=>{
+    if(feedback)return;
+    setTotal(t=>t+1);
+    if(item.en===answer.en){
+      setScore(s=>s+1);const ns=streak+1;setStreak(ns);
+      setFeedback("correct");playOK();setShowAnswer(true);
+      speak(answer.en,0.7);
+      if(ns>0&&ns%5===0){setShowConfetti(true);setTimeout(()=>setShowConfetti(false),2000)}
+      setTimeout(()=>generate(),1200);
+    }else{
+      setStreak(0);setFeedback("wrong");playNG();
+      setShakeIdx(idx);setTimeout(()=>setShakeIdx(-1),500);
+      setTimeout(()=>setFeedback(null),800);
     }
+  };
 
-    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  const replay=()=>{if(answer)speak(answer.en,0.7)};
+
+  return(<div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:18}}>
+    <Confetti show={showConfetti}/>
+    <div style={{display:"flex",gap:14,alignItems:"center"}}>
+      <div style={{display:"flex",gap:8,alignItems:"center",background:"rgba(255,255,255,0.6)",padding:"8px 16px",borderRadius:14}}><span style={{fontSize:22}}>⭐</span><span style={{fontSize:18,fontWeight:800,color:"#FFD43B",fontFamily:"'Fredoka',sans-serif"}}>{score}/{total}</span></div>
+      {streak>=2&&<div style={{display:"flex",gap:4,alignItems:"center",background:"#FF6B6B22",padding:"8px 14px",borderRadius:14,animation:"popIn 0.3s ease-out"}}><span style={{fontSize:18}}>🔥</span><span style={{fontSize:16,fontWeight:800,color:"#FF6B6B",fontFamily:"'Fredoka',sans-serif"}}>{streak}연속!</span></div>}
+    </div>
+    <div style={{fontSize:15,fontWeight:700,color:"#666",fontFamily:"'Nunito',sans-serif",textAlign:"center"}}>소리를 듣고 맞는 그림을 골라요!</div>
+    {/* Difficulty */}
+    <div style={{display:"flex",gap:6}}>
+      {[{n:3,label:"쉬움"},{n:4,label:"보통"},{n:6,label:"어려움"}].map(d=>(<button key={d.n} onClick={()=>setNumChoices(d.n)} style={{padding:"6px 14px",border:"none",borderRadius:10,cursor:"pointer",fontSize:12,fontWeight:800,fontFamily:"'Nunito',sans-serif",background:numChoices===d.n?"#4DABF7":"rgba(0,0,0,0.06)",color:numChoices===d.n?"#fff":"#888",transition:"all 0.2s"}}>{d.label}</button>))}
+    </div>
+    {/* Speaker */}
+    <button onClick={replay} style={{width:100,height:100,borderRadius:"50%",border:"none",cursor:"pointer",fontSize:44,background:"linear-gradient(145deg,#4FC3F7,#29B6F6)",color:"#fff",boxShadow:"0 6px 25px rgba(79,195,247,0.4)",display:"flex",alignItems:"center",justifyContent:"center",transition:"all 0.2s",animation:"pulse 2s ease-in-out infinite"}}>🔊</button>
+    <div style={{fontSize:12,color:"#aaa",fontFamily:"'Nunito',sans-serif",marginTop:-10}}>눌러서 다시 듣기</div>
+    {/* Show answer after correct */}
+    {showAnswer&&answer&&(<div style={{animation:"bounceIn 0.4s ease-out",display:"flex",flexDirection:"column",alignItems:"center",gap:4}}>
+      <span style={{fontSize:60}}>{answer.emoji}</span>
+      <span style={{fontSize:28,fontWeight:900,fontFamily:"'Fredoka',sans-serif",color:"#4DABF7"}}>{answer.en}</span>
+      <span style={{fontSize:14,color:"#888",fontFamily:"'Nunito',sans-serif"}}>{answer.ko}</span>
+    </div>)}
+    {/* Choice grid */}
+    {!showAnswer&&(<div style={{display:"grid",gridTemplateColumns:numChoices<=4?"repeat(2,1fr)":"repeat(3,1fr)",gap:12,width:"100%",maxWidth:340}}>
+      {choices.map((item,i)=>{
+        const isShaking=shakeIdx===i;
+        return(<button key={item.en+"-"+i} onClick={()=>handlePick(item,i)} style={{
+          padding:"20px 8px",border:"none",borderRadius:20,cursor:feedback?"default":"pointer",
+          display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:6,
+          background:"rgba(255,255,255,0.85)",
+          boxShadow:"0 4px 15px rgba(0,0,0,0.06)",transition:"all 0.2s",
+          animation:isShaking?"shake 0.4s ease-out":"popIn 0.3s "+(i*0.06)+"s ease-out both",
+          border:"3px solid transparent",
+        }}>
+          <span style={{fontSize:numChoices<=4?48:36}}>{item.emoji}</span>
+        </button>);
+      })}
+    </div>)}
+    {/* Feedback */}
+    <div style={{height:32,display:"flex",alignItems:"center"}}>
+      {feedback==="correct"&&!showAnswer&&<div style={{fontSize:20,fontWeight:800,color:"#2B8A3E",fontFamily:"'Fredoka',sans-serif",animation:"popIn 0.3s ease-out"}}>🎉 정답!</div>}
+      {feedback==="wrong"&&<div style={{fontSize:20,fontWeight:800,color:"#C92A2A",fontFamily:"'Fredoka',sans-serif",animation:"popIn 0.3s ease-out"}}>😊 다시 들어봐요!</div>}
+    </div>
+    <button onClick={()=>{setScore(0);setTotal(0);setStreak(0);generate()}} style={{padding:"8px 20px",border:"none",borderRadius:10,cursor:"pointer",fontSize:13,fontWeight:700,fontFamily:"'Nunito',sans-serif",background:"rgba(0,0,0,0.06)",color:"#888"}}>🔄 초기화</button>
+  </div>);
+};
+
+// ===== TYPING QUIZ =====
+const TypingQuiz=()=>{const[ci,setCi]=useState(()=>Math.floor(Math.random()*26));const[score,setScore]=useState(0);const[total,setTotal]=useState(0);const[feedback,setFeedback]=useState(null);const[showConfetti,setShowConfetti]=useState(false);const[streak,setStreak]=useState(0);const[shakeAnim,setShakeAnim]=useState(false);const[popAnim,setPopAnim]=useState(false);const d=ALPHABET_DATA[ci];const color=PASTEL_COLORS[ci];const inputRef=useRef(null);
+const nextLetter=useCallback(()=>{let n;do{n=Math.floor(Math.random()*26)}while(n===ci);setCi(n);setFeedback(null);setPopAnim(true);setTimeout(()=>setPopAnim(false),300)},[ci]);
+const check=useCallback((pressed)=>{if(feedback||!/^[A-Z]$/.test(pressed))return;setTotal(t=>t+1);if(pressed===d.letter){setScore(s=>s+1);const ns=streak+1;setStreak(ns);setFeedback("correct");playOK();speak(d.letter.toLowerCase());if(ns>0&&ns%5===0){setShowConfetti(true);setTimeout(()=>setShowConfetti(false),2000)}setTimeout(()=>nextLetter(),800)}else{setStreak(0);setFeedback("wrong");playNG();setShakeAnim(true);setTimeout(()=>setShakeAnim(false),500);setTimeout(()=>setFeedback(null),1000)}},[feedback,d.letter,streak,nextLetter]);
+useEffect(()=>{const h=e=>{check(e.key.toUpperCase())};window.addEventListener("keydown",h);return()=>window.removeEventListener("keydown",h)},[check]);
+const handleMobile=e=>{const v=e.target.value;if(!v)return;check(v.toUpperCase());e.target.value=""};
+return(<div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:20}}><Confetti show={showConfetti}/><div style={{display:"flex",gap:16,alignItems:"center"}}><div style={{display:"flex",gap:8,alignItems:"center",background:"rgba(255,255,255,0.6)",padding:"8px 16px",borderRadius:14}}><span style={{fontSize:22}}>⭐</span><span style={{fontSize:18,fontWeight:800,color:"#FFD43B",fontFamily:"'Fredoka',sans-serif"}}>{score}/{total}</span></div>{streak>=2&&<div style={{display:"flex",gap:4,alignItems:"center",background:"#FF6B6B22",padding:"8px 14px",borderRadius:14,animation:"popIn 0.3s ease-out"}}><span style={{fontSize:18}}>🔥</span><span style={{fontSize:16,fontWeight:800,color:"#FF6B6B",fontFamily:"'Fredoka',sans-serif"}}>{streak}연속!</span></div>}</div>
+<div style={{fontSize:16,fontWeight:700,color:"#666",fontFamily:"'Nunito',sans-serif",textAlign:"center"}}>이 글자를 키보드로 눌러보세요!</div>
+<div style={{width:200,height:200,borderRadius:30,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",background:feedback==="correct"?"#69DB7C22":feedback==="wrong"?"#FF6B6B22":"linear-gradient(145deg,"+color+"15,"+color+"30)",border:feedback==="correct"?"4px solid #69DB7C":feedback==="wrong"?"4px solid #FF6B6B":"4px solid "+color+"44",transition:"all 0.3s",animation:shakeAnim?"shake 0.4s ease-in-out":popAnim?"popIn 0.3s ease-out":"none",boxShadow:"0 8px 30px "+color+"22"}}><span style={{fontSize:40,marginBottom:4}}>{d.emoji}</span><span style={{fontSize:80,fontWeight:900,lineHeight:1,fontFamily:"'Fredoka',sans-serif",color:feedback==="correct"?"#69DB7C":feedback==="wrong"?"#FF6B6B":color,transition:"color 0.2s"}}>{d.letter}</span></div>
+<div style={{height:40,display:"flex",alignItems:"center"}}>{feedback==="correct"&&<div style={{fontSize:20,fontWeight:800,color:"#2B8A3E",fontFamily:"'Fredoka',sans-serif",animation:"popIn 0.3s ease-out"}}>🎉 정답!</div>}{feedback==="wrong"&&<div style={{fontSize:20,fontWeight:800,color:"#C92A2A",fontFamily:"'Fredoka',sans-serif",animation:"popIn 0.3s ease-out"}}>😊 다시!</div>}{!feedback&&<div style={{fontSize:28,animation:"float 2s ease-in-out infinite"}}>⌨️</div>}</div>
+<input ref={inputRef} type="text" autoComplete="off" autoCapitalize="characters" onInput={handleMobile} style={{position:"absolute",opacity:0,width:1,height:1,pointerEvents:"none"}}/><button onClick={()=>inputRef.current&&inputRef.current.focus()} style={{padding:"12px 28px",border:"none",borderRadius:14,cursor:"pointer",fontSize:15,fontWeight:700,fontFamily:"'Nunito',sans-serif",background:"#4DABF7",color:"#fff",boxShadow:"0 4px 12px rgba(77,171,247,0.3)"}}>📱 키보드 열기</button><button onClick={()=>{setScore(0);setTotal(0);setStreak(0);setFeedback(null);nextLetter()}} style={{padding:"8px 20px",border:"none",borderRadius:10,cursor:"pointer",fontSize:13,fontWeight:700,fontFamily:"'Nunito',sans-serif",background:"rgba(0,0,0,0.06)",color:"#888"}}>🔄 초기화</button></div>)};
+
+// ===== NEW: VOCABULARY BY CATEGORY =====
+const VocabSection=()=>{
+  const[catId,setCatId]=useState(null);
+  const[itemIdx,setItemIdx]=useState(0);
+  const[showKo,setShowKo]=useState(false);
+  const[flipAnim,setFlipAnim]=useState(false);
+
+  if(!catId){
+    return(<div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:20}}>
+      <div style={{fontSize:16,fontWeight:700,color:"#666",fontFamily:"'Nunito',sans-serif",textAlign:"center"}}>카테고리를 골라보세요!</div>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:12,width:"100%",maxWidth:360}}>
+        {CATEGORIES.map((cat,i)=>(<button key={cat.id} onClick={()=>{setCatId(cat.id);setItemIdx(0);setShowKo(false)}} style={{padding:"18px 12px",border:"none",borderRadius:20,cursor:"pointer",display:"flex",flexDirection:"column",alignItems:"center",gap:6,background:"rgba(255,255,255,0.85)",boxShadow:"0 4px 15px "+cat.color+"22",transition:"all 0.2s",animation:"bounceIn 0.4s "+(i*0.06)+"s ease-out both",border:"3px solid "+cat.color+"33"}}>
+          <span style={{fontSize:36}}>{cat.icon}</span>
+          <span style={{fontSize:15,fontWeight:800,fontFamily:"'Nunito',sans-serif",color:cat.color}}>{cat.name}</span>
+          <span style={{fontSize:11,color:"#aaa",fontWeight:600}}>{cat.items.length}개</span>
+        </button>))}
+      </div>
+    </div>);
+  }
+
+  const cat=CATEGORIES.find(c=>c.id===catId);
+  const item=cat.items[itemIdx];
+  const go=(dir)=>{setFlipAnim(true);setTimeout(()=>{setItemIdx(i=>(i+dir+cat.items.length)%cat.items.length);setShowKo(false);setFlipAnim(false)},250)};
+
+  return(<div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:20}}>
+    <button onClick={()=>{setCatId(null);setItemIdx(0);setShowKo(false)}} style={{alignSelf:"flex-start",padding:"8px 16px",border:"none",borderRadius:12,cursor:"pointer",fontSize:13,fontWeight:700,fontFamily:"'Nunito',sans-serif",background:"rgba(0,0,0,0.06)",color:"#888"}}>← 카테고리 목록</button>
+    <div style={{display:"flex",gap:8,alignItems:"center"}}><span style={{fontSize:24}}>{cat.icon}</span><span style={{fontSize:20,fontWeight:800,fontFamily:"'Fredoka',sans-serif",color:cat.color}}>{cat.name}</span></div>
+    {/* Mini thumbnails */}
+    <div style={{display:"flex",gap:6,flexWrap:"wrap",justifyContent:"center",maxWidth:400}}>
+      {cat.items.map((it,i)=>(<button key={i} onClick={()=>{setItemIdx(i);setShowKo(false)}} style={{width:38,height:38,border:"none",borderRadius:10,cursor:"pointer",fontSize:18,display:"flex",alignItems:"center",justifyContent:"center",background:i===itemIdx?cat.color+"22":"rgba(255,255,255,0.5)",border:i===itemIdx?"2px solid "+cat.color:"2px solid transparent",transition:"all 0.2s"}}>{it.emoji}</button>))}
+    </div>
+    {/* Card */}
+    <div onClick={()=>speak(item.en,0.7)} style={{width:280,minHeight:340,borderRadius:28,padding:30,cursor:"pointer",background:"linear-gradient(145deg,"+cat.color+"15,"+cat.color+"33)",border:"3px solid "+cat.color+"44",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:12,transition:"all 0.3s",position:"relative",transform:flipAnim?"scale(0.9) rotateY(90deg)":"scale(1) rotateY(0deg)",boxShadow:"0 8px 30px "+cat.color+"22"}}>
+      <div style={{fontSize:90,lineHeight:1,animation:"float 3s ease-in-out infinite"}}>{item.emoji}</div>
+      <div style={{fontSize:38,fontWeight:900,fontFamily:"'Fredoka',sans-serif",color:cat.color,lineHeight:1.2}}>{item.en}</div>
+      {showKo?
+        <div style={{fontSize:22,fontWeight:700,fontFamily:"'Nunito',sans-serif",color:"#666",animation:"popIn 0.3s ease-out"}}>{item.ko}</div>:
+        <button onClick={e=>{e.stopPropagation();setShowKo(true)}} style={{padding:"6px 20px",border:"2px dashed "+cat.color+"66",borderRadius:12,cursor:"pointer",fontSize:14,fontWeight:700,fontFamily:"'Nunito',sans-serif",background:"transparent",color:cat.color}}>뜻 보기 👀</button>
+      }
+      <div style={{position:"absolute",top:12,right:16,fontSize:22,opacity:0.5}}>🔊</div>
+    </div>
+    <div style={{display:"flex",gap:16,alignItems:"center"}}><button onClick={()=>go(-1)} style={{width:48,height:48,border:"none",borderRadius:14,cursor:"pointer",fontSize:18,fontWeight:700,background:"rgba(255,255,255,0.8)",color:"#555",boxShadow:"0 2px 8px rgba(0,0,0,0.08)"}}>◀</button><span style={{fontSize:14,color:"#999",fontFamily:"'Nunito',sans-serif",fontWeight:700}}>{itemIdx+1}/{cat.items.length}</span><button onClick={()=>go(1)} style={{width:48,height:48,border:"none",borderRadius:14,cursor:"pointer",fontSize:18,fontWeight:700,background:"rgba(255,255,255,0.8)",color:"#555",boxShadow:"0 2px 8px rgba(0,0,0,0.08)"}}>▶</button></div>
+  </div>);
+};
+
+// ===== WORD WRITING (scroll fixed) =====
+const WordWriting=()=>{const canvasRef=useRef(null);const[wi,setWi]=useState(0);const drawingRef=useRef(false);const d=WRITE_WORDS[wi];
+const clearCanvas=useCallback(()=>{const c=canvasRef.current;if(!c)return;const ctx=c.getContext("2d");ctx.clearRect(0,0,c.width,c.height);ctx.font="bold 80px Fredoka,Nunito,sans-serif";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillStyle="rgba(77,171,247,0.15)";ctx.fillText(d.word,c.width/2,c.height/2);ctx.strokeStyle="#ddd";ctx.lineWidth=1;ctx.setLineDash([5,5]);ctx.beginPath();ctx.moveTo(20,c.height*0.68);ctx.lineTo(c.width-20,c.height*0.68);ctx.stroke();ctx.setLineDash([])},[wi,d.word]);
+useEffect(()=>{clearCanvas()},[clearCanvas]);
+useEffect(()=>{
+  const c=canvasRef.current;if(!c)return;
+  const getPos=e=>{const r=c.getBoundingClientRect(),sx=c.width/r.width,sy=c.height/r.height;const t=e.touches?e.touches[0]:e;return{x:(t.clientX-r.left)*sx,y:(t.clientY-r.top)*sy}};
+  const onStart=e=>{e.preventDefault();e.stopPropagation();drawingRef.current=true;const ctx=c.getContext("2d"),p=getPos(e);ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.strokeStyle="#4DABF7";ctx.lineWidth=5;ctx.lineCap="round";ctx.lineJoin="round"};
+  const onMove=e=>{if(!drawingRef.current)return;e.preventDefault();e.stopPropagation();const ctx=c.getContext("2d"),p=getPos(e);ctx.lineTo(p.x,p.y);ctx.stroke()};
+  const onEnd=e=>{e.preventDefault();drawingRef.current=false};
+  c.addEventListener("touchstart",onStart,{passive:false});c.addEventListener("touchmove",onMove,{passive:false});c.addEventListener("touchend",onEnd,{passive:false});
+  c.addEventListener("mousedown",onStart);c.addEventListener("mousemove",onMove);c.addEventListener("mouseup",onEnd);c.addEventListener("mouseleave",onEnd);
+  return()=>{c.removeEventListener("touchstart",onStart);c.removeEventListener("touchmove",onMove);c.removeEventListener("touchend",onEnd);c.removeEventListener("mousedown",onStart);c.removeEventListener("mousemove",onMove);c.removeEventListener("mouseup",onEnd);c.removeEventListener("mouseleave",onEnd)};
+},[]);
+const next=()=>{setWi(i=>(i+1)%WRITE_WORDS.length)};const prev2=()=>{setWi(i=>(i-1+WRITE_WORDS.length)%WRITE_WORDS.length)};
+return(<div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:16}}><div style={{fontSize:14,fontWeight:700,color:"#666",fontFamily:"'Nunito',sans-serif",textAlign:"center"}}>단어를 따라 써보세요!</div>
+<div style={{display:"flex",gap:12,alignItems:"center"}}><span style={{fontSize:50}}>{d.emoji}</span><span style={{fontSize:40,fontWeight:900,fontFamily:"'Fredoka',sans-serif",color:"#4DABF7"}}>{d.word}</span><button onClick={()=>speak(d.word,0.7)} style={{background:"none",border:"none",fontSize:28,cursor:"pointer"}}>🔊</button></div>
+<div style={{display:"flex",gap:6,justifyContent:"center"}}>{d.word.split("").map((ch,idx)=>(<div key={idx} onClick={()=>speak(ch)} style={{width:44,height:52,borderRadius:12,display:"flex",alignItems:"center",justifyContent:"center",background:"rgba(77,171,247,0.1)",border:"2px solid rgba(77,171,247,0.3)",cursor:"pointer",fontSize:24,fontWeight:900,fontFamily:"'Fredoka',sans-serif",color:"#4DABF7",transition:"all 0.2s",animation:"slideRight 0.3s "+idx*0.08+"s ease-out both"}}>{ch}</div>))}</div>
+<div style={{position:"relative",borderRadius:20,overflow:"hidden",boxShadow:"0 4px 20px rgba(0,0,0,0.08)",background:"#fff",border:"3px solid rgba(77,171,247,0.3)"}}><canvas ref={canvasRef} width={360} height={200} style={{width:360,height:200,touchAction:"none",cursor:"crosshair",display:"block"}}/></div>
+<div style={{display:"flex",gap:10}}><button onClick={clearCanvas} style={{padding:"10px 24px",border:"none",borderRadius:12,cursor:"pointer",fontSize:14,fontWeight:700,fontFamily:"'Nunito',sans-serif",background:"#FF6B6B",color:"#fff"}}>🗑️ 지우기</button><button onClick={()=>{speak("Well done!");playChime();clearCanvas();next()}} style={{padding:"10px 24px",border:"none",borderRadius:12,cursor:"pointer",fontSize:14,fontWeight:700,fontFamily:"'Nunito',sans-serif",background:"#69DB7C",color:"#fff"}}>✅ 다음</button></div>
+<div style={{display:"flex",gap:16,alignItems:"center"}}><button onClick={prev2} style={{width:44,height:44,border:"none",borderRadius:12,cursor:"pointer",fontSize:16,background:"rgba(255,255,255,0.8)",color:"#555",boxShadow:"0 2px 8px rgba(0,0,0,0.08)"}}>◀</button><span style={{fontSize:13,color:"#999",fontFamily:"'Nunito',sans-serif",fontWeight:700}}>{wi+1}/{WRITE_WORDS.length}</span><button onClick={()=>{clearCanvas();next()}} style={{width:44,height:44,border:"none",borderRadius:12,cursor:"pointer",fontSize:16,background:"rgba(255,255,255,0.8)",color:"#555",boxShadow:"0 2px 8px rgba(0,0,0,0.08)"}}>▶</button></div></div>)};
+
+// ===== APP =====
+function App(){const[activeTab,setActiveTab]=useState("cards");
+return(<div style={{minHeight:"100vh",background:"linear-gradient(135deg,#FFF5F5 0%,#FFF9DB 25%,#EBFBEE 50%,#E7F5FF 75%,#F3F0FF 100%)",padding:"20px 16px 40px",fontFamily:"'Nunito',sans-serif"}}>
+<div style={{textAlign:"center",marginBottom:16}}><h1 style={{fontSize:28,fontWeight:900,fontFamily:"'Fredoka',sans-serif",background:"linear-gradient(135deg,#FF6B6B,#FFD43B,#69DB7C,#4DABF7,#9775FA)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",margin:0,lineHeight:1.3}}>🌈 ABC 알파벳 놀이</h1><p style={{fontSize:12,color:"#999",margin:"4px 0 0",fontWeight:600}}>재미있게 영어를 배워요!</p></div>
+<TabNav activeTab={activeTab} setActiveTab={setActiveTab}/>
+<div style={{marginTop:20}}>{activeTab==="cards"&&<AlphabetCards/>}{activeTab==="write"&&<WritingPractice/>}{activeTab==="match"&&<MatchingGame/>}{activeTab==="typing"&&<TypingQuiz/>}{activeTab==="vocab"&&<VocabSection/>}{activeTab==="wordwrite"&&<WordWriting/>}</div></div>)}
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
   </script>
 </body>
 </html>
